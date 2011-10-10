@@ -1,0 +1,1 @@
+[{"type": "match", "match": ".*someuripart.*", "options": {"http-user": "user", "http-passwd": "password"}}]
