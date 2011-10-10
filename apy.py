@@ -4,11 +4,10 @@ import urllib2, json, getopt, sys, os, re
 from pprint import pprint
 
 def createRequest(method, args = None):
+    obj = {'jsonrpc': '2.0', 'id': 'qwer', 'method': method}
     if not args is None:
-        req = json.dumps({'jsonrpc': '2.0', 'id': 'qwer', 'method': method, 'params': args})
-        return req
-    req = json.dumps({'jsonrpc': '2.0', 'id': 'qwer', 'method': method})
-    return req
+        obj['params'] = args
+    return json.dumps(obj)
 
 def sendRequest(req):
     try:
