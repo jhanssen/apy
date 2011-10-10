@@ -45,10 +45,10 @@ def addUri(uri, cfg):
 
 def removeUri(gid):
     req = createRequest('aria2.remove', [gid])
-    resp = sendRequest(req)
+    resp1 = sendRequest(req)
     req = createRequest('aria2.removeDownloadResult', [gid])
-    sendRequest(req)
-    if resp == gid:
+    resp2 = sendRequest(req)
+    if resp1 == gid or (isinstance(resp2, basestring) and resp2 == "OK"):
         print 'Ok.'
     else:
         print 'Failure.'
