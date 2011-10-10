@@ -27,7 +27,7 @@ def applyConfig(uri, cfg):
     args.append([uri])
     for c in cfg:
         if not type(c) is dict:
-            print "Type is not dict in applyConfig!"
+            print "type is not dict in applyConfig!"
             return [[uri]]
         if c['type'] == 'match':
             p = re.compile(c['match'])
@@ -55,11 +55,12 @@ def removeUri(gid):
     else:
         print 'Failure.'
 
-def printTell(resp):
+def printTell(header, resp):
     if len(resp) > 0:
+        print header
         for entry in resp:
             if not type(entry) is dict:
-                print 'entry is not dict!'
+                print 'entry is not dict in printTell!'
                 return
             print '  GID', entry['gid']
             files = entry['files']
@@ -87,27 +88,20 @@ def status():
     resp = sendRequest(req)
     if not type(resp) is dict:
         return
-    numActive = int(resp['numActive'])
-    numStopped = int(resp['numStopped'])
+
     numWaiting = int(resp['numWaiting'])
+
     req = createRequest('aria2.tellActive', ['gid', 'status', 'totalLength', 'downloadSpeed', 'files', 'connections'])
     resp = sendRequest(req)
     if not type(resp) is list:
         return
-    print 'ACTIVE'
-    printTell(resp)
+    printTell('ACTIVE', resp)
+
     req = createRequest('aria2.tellWaiting', [0, numWaiting, ['gid', 'status', 'totalLength', 'downloadSpeed', 'files']])
     resp = sendRequest(req)
     if not type(resp) is list:
         return
-    print 'WAITING'
-    printTell(resp)
-    req = createRequest('aria2.tellStopped', [0, numStopped, ['gid', 'status', 'totalLength', 'downloadSpeed', 'files']])
-    resp = sendRequest(req)
-    if not type(resp) is list:
-        return
-    print 'STOPPED'
-    printTell(resp)
+    printTell('WAITING', resp)
 
 def runCommand(cmd):
     req = createRequest(cmd)
