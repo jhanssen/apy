@@ -132,7 +132,7 @@ def main():
         print str(err)
         syntax()
         sys.exit(1)
-    if len(opts) == 0:
+    if len(opts) == 0 or len(args) != 0:
         syntax()
         sys.exit(0)
     cfg = parseConfig()
