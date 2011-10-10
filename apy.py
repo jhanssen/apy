@@ -47,14 +47,11 @@ def addUri(uri, cfg):
 
 def removeUri(gid):
     req = createRequest('aria2.remove', [gid])
-    sendRequest(req)
-    req = createRequest('aria2.removeDownloadResult', [gid])
     resp = sendRequest(req)
-    if isinstance(resp, basestring):
-        if resp == 'OK':
-            print 'Ok.'
-        else:
-            print 'Failure.'
+    if resp == gid:
+        req = createRequest('aria2.removeDownloadResult', [gid])
+        sendRequest(req)
+        print 'Ok.'
     else:
         print 'Failure.'
 
@@ -71,13 +68,14 @@ def printTell(resp):
                 uris = f['uris']
                 if running:
                     print '    PATH', f['path']
-                for u in uris:
-                    print '    URI', u['uri'], 'STATUS', u['status']
+                if len(uris) > 0:
+                    print '    URI', uris[0]['uri']
             if running:
                 tot = float(entry['totalLength'])
                 cur = float(entry['completedLength'])
                 perc = int(cur / tot * 100)
                 speed = float(entry['downloadSpeed']) / 1024
+                print '    CONNECTIONS', entry['connections']
                 print '    SPEED', round(speed, 1), 'KiB/s'
                 print '    COMPLETED', str(perc) + '%'
                 print '      DOWNLOADED', round(cur / 1048576, 1), 'MiB'
@@ -92,27 +90,38 @@ def status():
     numActive = int(resp['numActive'])
     numStopped = int(resp['numStopped'])
     numWaiting = int(resp['numWaiting'])
-    req = createRequest('aria2.tellActive', ['gid', 'status', 'totalLength', 'uploadLength', 'downloadSpeed', 'files'])
+    req = createRequest('aria2.tellActive', ['gid', 'status', 'totalLength', 'downloadSpeed', 'files', 'connections'])
     resp = sendRequest(req)
     if not type(resp) is list:
         return
     print 'ACTIVE'
     printTell(resp)
-    req = createRequest('aria2.tellWaiting', [0, numWaiting, ['gid', 'status', 'totalLength', 'uploadLength', 'downloadSpeed', 'files']])
+    req = createRequest('aria2.tellWaiting', [0, numWaiting, ['gid', 'status', 'totalLength', 'downloadSpeed', 'files']])
     resp = sendRequest(req)
     if not type(resp) is list:
         return
     print 'WAITING'
     printTell(resp)
-    req = createRequest('aria2.tellStopped', [0, numStopped, ['gid', 'status', 'totalLength', 'uploadLength', 'downloadSpeed', 'files']])
+    req = createRequest('aria2.tellStopped', [0, numStopped, ['gid', 'status', 'totalLength', 'downloadSpeed', 'files']])
     resp = sendRequest(req)
     if not type(resp) is list:
         return
     print 'STOPPED'
     printTell(resp)
 
+def runCommand(cmd):
+    req = createRequest(cmd)
+    resp = sendRequest(req)
+    if isinstance(resp, basestring):
+        if resp == "OK":
+            print "Ok."
+        else:
+            print "Failure."
+    else:
+        print "Failure."
+
 def syntax():
-    print 'Syntax: apy.py [-a uri] [-r gid] [-s]'
+    print 'Syntax: apy.py [-a uri] [-r gid] [-s] [-p] [-u]'
 
 def parseConfig():
     try:
@@ -124,7 +133,7 @@ def parseConfig():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'a:r:s')
+        opts, args = getopt.getopt(sys.argv[1:], 'a:r:spu')
     except getopt.GetoptError, err:
         print str(err)
         syntax()
@@ -140,6 +149,10 @@ def main():
             removeUri(v)
         elif k == '-s':
             status()
+        elif k == '-p':
+            runCommand('aria2.pauseAll')
+        elif k == '-u':
+            runCommand('aria2.unpauseAll')
         else:
             syntax()
             sys.exit(1)
