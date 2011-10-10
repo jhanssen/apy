@@ -96,6 +96,15 @@ def printTell(header, resp):
                 print '    COMPLETED', str(perc) + '%'
                 print '      DOWNLOADED', round(cur / 1048576, 1), 'MiB'
                 print '      TOTAL', round(tot / 1048576, 1), 'MiB'
+            if 'errorCode' in entry:
+                error = entry['errorCode']
+                if len(error) > 0:
+                    print '    ERROR', entry['errorCode']
+
+def filterStatus(resp, status):
+    if not type(resp) is list:
+        return []
+    return filter(lambda entry: 'status' in entry and status == entry['status'], resp)
 
 def removeStopped():
     req = createRequest('aria2.getGlobalStat')
@@ -146,11 +155,14 @@ def status():
         return
     printTell('WAITING', resp)
 
-    req = createRequest('aria2.tellStopped', [0, numStopped, ['gid', 'status', 'files']])
+    req = createRequest('aria2.tellStopped', [0, numStopped, ['gid', 'status', 'files', 'errorCode']])
     resp = sendRequest(req)
     if not type(resp) is list:
         return
-    printTell('STOPPED', resp)
+    complete = filterStatus(resp, 'complete')
+    printTell('COMPLETE', complete)
+    error = filterStatus(resp, 'error')
+    printTell('ERROR', error)
 
 def runCommand(cmd):
     req = createRequest(cmd)
