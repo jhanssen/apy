@@ -25,7 +25,7 @@ def applyConfig(uri, cfg):
     args = [[uri]]
     for c in cfg:
         if not type(c) is dict:
-            print "type is not dict in applyConfig!"
+            print 'type is not dict in applyConfig!'
             return [[uri]]
         if c['type'] == 'match':
             p = re.compile(c['match'])
@@ -46,9 +46,9 @@ def addUri(uri, cfg):
 def removeUri(gid):
     req = createRequest('aria2.remove', [gid])
     resp = sendRequest(req)
+    req = createRequest('aria2.removeDownloadResult', [gid])
+    sendRequest(req)
     if resp == gid:
-        req = createRequest('aria2.removeDownloadResult', [gid])
-        sendRequest(req)
         print 'Ok.'
     else:
         print 'Failure.'
@@ -88,6 +88,7 @@ def status():
         return
 
     numWaiting = int(resp['numWaiting'])
+    numStopped = int(resp['numStopped'])
 
     req = createRequest('aria2.tellActive', ['gid', 'status', 'totalLength', 'completedLength', 'downloadSpeed', 'files', 'connections'])
     resp = sendRequest(req)
@@ -101,16 +102,22 @@ def status():
         return
     printTell('WAITING', resp)
 
+    req = createRequest('aria2.tellStopped', [0, numStopped, ['gid', 'status', 'files']])
+    resp = sendRequest(req)
+    if not type(resp) is list:
+        return
+    printTell('STOPPED', resp)
+
 def runCommand(cmd):
     req = createRequest(cmd)
     resp = sendRequest(req)
     if isinstance(resp, basestring):
-        if resp == "OK":
-            print "Ok."
+        if resp == 'OK':
+            print 'Ok.'
         else:
-            print "Failure."
+            print 'Failure.'
     else:
-        print "Failure."
+        print 'Failure.'
 
 def syntax():
     print 'Syntax: apy.py [-a uri] [-r gid] [-s] [-p] [-u]'
