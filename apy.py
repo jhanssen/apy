@@ -22,8 +22,7 @@ def sendRequest(req):
     return data['result']
 
 def applyConfig(uri, cfg):
-    args = []
-    args.append([uri])
+    args = [[uri]]
     for c in cfg:
         if not type(c) is dict:
             print "type is not dict in applyConfig!"
