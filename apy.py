@@ -53,6 +53,15 @@ def removeUri(gid):
     else:
         print 'Failure.'
 
+def formatTime(days, hrs, mins, secs):
+    fmt = ''
+    if days > 0:
+        fmt = str(days) + 'd '
+    if hrs > 0:
+        fmt = fmt + str(hrs) + 'h '
+    fmt = fmt + str(mins) + 'm ' + str(secs) + 's'
+    return fmt
+
 def printTell(header, resp):
     if len(resp) > 0:
         print header
@@ -74,6 +83,14 @@ def printTell(header, resp):
                 cur = float(entry['completedLength'])
                 perc = int(cur / tot * 100)
                 speed = float(entry['downloadSpeed']) / 1024
+                time = int(((tot - cur) / 1024) / speed)
+                tmin = time / 60
+                tsec = time % 60
+                thr = tmin / 60
+                tmin = tmin % 60
+                tdy = thr / 24
+                thr = thr % 24
+                print '    TIME', formatTime(tdy, thr, tmin, tsec)
                 print '    CONNECTIONS', entry['connections']
                 print '    SPEED', round(speed, 1), 'KiB/s'
                 print '    COMPLETED', str(perc) + '%'
