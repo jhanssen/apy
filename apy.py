@@ -90,9 +90,9 @@ def printTell(header, resp):
                 tmin = tmin % 60
                 tdy = thr / 24
                 thr = thr % 24
-                print '    TIME', formatTime(tdy, thr, tmin, tsec)
                 print '    CONNECTIONS', entry['connections']
                 print '    SPEED', round(speed, 1), 'KiB/s'
+                print '    TIME', formatTime(tdy, thr, tmin, tsec)
                 print '    COMPLETED', str(perc) + '%'
                 print '      DOWNLOADED', round(cur / 1048576, 1), 'MiB'
                 print '      TOTAL', round(tot / 1048576, 1), 'MiB'
