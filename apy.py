@@ -91,13 +91,13 @@ def status():
 
     numWaiting = int(resp['numWaiting'])
 
-    req = createRequest('aria2.tellActive', ['gid', 'status', 'totalLength', 'downloadSpeed', 'files', 'connections'])
+    req = createRequest('aria2.tellActive', ['gid', 'status', 'totalLength', 'completedLength', 'downloadSpeed', 'files', 'connections'])
     resp = sendRequest(req)
     if not type(resp) is list:
         return
     printTell('ACTIVE', resp)
 
-    req = createRequest('aria2.tellWaiting', [0, numWaiting, ['gid', 'status', 'totalLength', 'downloadSpeed', 'files']])
+    req = createRequest('aria2.tellWaiting', [0, numWaiting, ['gid', 'status', 'files']])
     resp = sendRequest(req)
     if not type(resp) is list:
         return
