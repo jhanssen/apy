@@ -80,6 +80,33 @@ def printTell(header, resp):
                 print '      DOWNLOADED', round(cur / 1048576, 1), 'MiB'
                 print '      TOTAL', round(tot / 1048576, 1), 'MiB'
 
+def removeStopped():
+    req = createRequest('aria2.getGlobalStat')
+    resp = sendRequest(req)
+    if not type(resp) is dict:
+        print 'type is not dict in removeStopped'
+        return
+
+    numStopped = int(resp['numStopped'])
+    req = createRequest('aria2.tellStopped', [0, numStopped, ['gid', 'files']])
+    resp = sendRequest(req)
+    if not type(resp) is list:
+        print 'type is not list in removeStopped'
+        return
+
+    for entry in resp:
+        if not type(entry) is dict:
+            print 'type is not dict (2) in removeStopped'
+            return
+        files = entry['files']
+        gid = entry['gid']
+        for f in files:
+            if 'path' in f:
+                print 'Clearing', f['path'], 'with GID', gid
+        req = createRequest('aria2.removeDownloadResult', [gid])
+        resp = sendRequest(req)
+        if not isinstance(resp, basestring) or not resp == 'OK':
+            print 'Failed to remove GID', gid
 
 def status():
     req = createRequest('aria2.getGlobalStat')
@@ -120,7 +147,7 @@ def runCommand(cmd):
         print 'Failure.'
 
 def syntax():
-    print 'Syntax: apy.py [-a uri] [-r gid] [-s] [-p] [-u]'
+    print 'Syntax: apy.py [-a uri] [-r gid] [-s] [-p] [-u] [-c]'
 
 def parseConfig():
     try:
@@ -132,7 +159,7 @@ def parseConfig():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'a:r:spu')
+        opts, args = getopt.getopt(sys.argv[1:], 'a:r:spuc')
     except getopt.GetoptError, err:
         print str(err)
         syntax()
@@ -152,6 +179,8 @@ def main():
             runCommand('aria2.pauseAll')
         elif k == '-u':
             runCommand('aria2.unpauseAll')
+        elif k == '-c':
+            removeStopped()
         else:
             syntax()
             sys.exit(1)
