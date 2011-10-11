@@ -98,7 +98,7 @@ def printTell(header, resp):
                 print '      TOTAL', round(tot / 1048576, 1), 'MiB'
             if 'errorCode' in entry:
                 error = entry['errorCode']
-                if len(error) > 0:
+                if len(error) > 0 and error != '0':
                     print '    ERROR', entry['errorCode']
 
 def filterStatus(resp, status):
