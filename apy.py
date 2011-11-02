@@ -83,7 +83,10 @@ def printTell(header, resp):
                 cur = float(entry['completedLength'])
                 perc = int(cur / tot * 100)
                 speed = float(entry['downloadSpeed']) / 1024
-                time = int(((tot - cur) / 1024) / speed)
+                if speed == 0:
+                    time = 0
+                else:
+                    time = int(((tot - cur) / 1024) / speed)
                 tmin = time / 60
                 tsec = time % 60
                 thr = tmin / 60
