@@ -80,6 +80,8 @@ def printTell(header, resp):
                     print '    URI', uris[0]['uri']
             if running:
                 tot = float(entry['totalLength'])
+                if tot == 0:
+                    tot = 1
                 cur = float(entry['completedLength'])
                 perc = int(cur / tot * 100)
                 speed = float(entry['downloadSpeed']) / 1024
